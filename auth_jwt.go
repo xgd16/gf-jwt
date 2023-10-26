@@ -3,6 +3,7 @@ package jwt
 import (
 	"context"
 	"crypto/rsa"
+	"github.com/gogf/gf/v2/os/gtime"
 	"io/ioutil"
 	"net/http"
 	"strings"
@@ -800,11 +801,9 @@ func (mw *GfJWTMiddleware) setBlacklist(ctx context.Context, token string, claim
 	exp := int64(claims["exp"].(float64))
 
 	// save duration time = (exp + max_refresh) - now
-	duration := time.Unix(exp, 0).Add(mw.MaxRefresh).Sub(mw.TimeFunc()).Truncate(time.Second)
-
 	key := mw.BlacklistPrefix + token
 	// global gcache
-	err = blacklist.Set(ctx, key, true, duration)
+	err = blacklist.Set(ctx, key, true, time.Duration(exp-gtime.Now().UnixMilli())*time.Millisecond*5*time.Second)
 
 	if err != nil {
 		return err
