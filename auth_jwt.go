@@ -415,6 +415,25 @@ func (mw *GfJWTMiddleware) RefreshToken(ctx context.Context) (string, time.Time,
 	return tokenString, expire, nil
 }
 
+// TokenToBlackList from token to black
+func (mw *GfJWTMiddleware) TokenToBlackList(ctx context.Context, tokenStr string) (err error) {
+	token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
+		if jwt.GetSigningMethod(mw.SigningAlgorithm) != t.Method {
+			return nil, ErrInvalidSigningAlgorithm
+		}
+		if mw.usingPublicKeyAlgo() {
+			return mw.pubKey, nil
+		}
+
+		return mw.Key, nil
+	})
+	if err != nil {
+		return
+	}
+	err = mw.setBlacklist(ctx, tokenStr, token.Claims.(jwt.MapClaims))
+	return
+}
+
 // CheckIfTokenExpire check if token expire
 func (mw *GfJWTMiddleware) CheckIfTokenExpire(ctx context.Context) (jwt.MapClaims, string, error) {
 	r := g.RequestFromCtx(ctx)
