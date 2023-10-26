@@ -803,7 +803,7 @@ func (mw *GfJWTMiddleware) setBlacklist(ctx context.Context, token string, claim
 	// save duration time = (exp + max_refresh) - now
 	key := mw.BlacklistPrefix + token
 	// global gcache
-	err = blacklist.Set(ctx, key, true, time.Duration(exp-gtime.Now().UnixMilli())*time.Millisecond*5*time.Second)
+	err = blacklist.Set(ctx, key, true, time.Duration(exp-gtime.Now().UnixMilli())+5*time.Second)
 
 	if err != nil {
 		return err
