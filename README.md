@@ -1,3 +1,7 @@
+# THIS REPOSITORY IS NO LONGER MAINTANED
+
+The new repository can be found at: https://github.com/golang-jwt/jwt
+
 # gf-jwt v2
 
 This is a middleware for Gf framework.
