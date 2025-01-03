@@ -3,11 +3,13 @@ package jwt
 import (
 	"context"
 	"crypto/rsa"
-	"github.com/gogf/gf/v2/os/gtime"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/gogf/gf/v2/errors/gerror"
+	"github.com/gogf/gf/v2/os/gtime"
 
 	"github.com/gogf/gf/v2/crypto/gmd5"
 	"github.com/gogf/gf/v2/frame/g"
@@ -324,7 +326,12 @@ func (mw *GfJWTMiddleware) LoginHandler(ctx context.Context) (tokenString string
 
 	tokenString, err = mw.signedString(token)
 	if err != nil {
-		mw.unauthorized(ctx, http.StatusUnauthorized, mw.HTTPStatusMessageFunc(ErrFailedTokenCreation, ctx))
+		code := gerror.Code(err)
+		respCode := http.StatusUnauthorized
+		if code.Code() > 0 {
+			respCode = code.Code()
+		}
+		mw.unauthorized(ctx, respCode, mw.HTTPStatusMessageFunc(ErrFailedTokenCreation, ctx))
 		return
 	}
 
