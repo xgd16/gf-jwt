@@ -300,7 +300,12 @@ func (mw *GfJWTMiddleware) LoginHandler(ctx context.Context) (tokenString string
 
 	data, err := mw.Authenticator(ctx)
 	if err != nil {
-		mw.unauthorized(ctx, http.StatusUnauthorized, mw.HTTPStatusMessageFunc(err, ctx))
+		code := gerror.Code(err)
+		respCode := http.StatusUnauthorized
+		if code.Code() > 0 {
+			respCode = code.Code()
+		}
+		mw.unauthorized(ctx, respCode, mw.HTTPStatusMessageFunc(err, ctx))
 		return
 	}
 
